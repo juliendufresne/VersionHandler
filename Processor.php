@@ -8,10 +8,7 @@ use JulienDufresne\VersionHandler\Exception\StrategyException;
 use JulienDufresne\VersionHandler\Strategy\GitVersionStrategy;
 use JulienDufresne\VersionHandler\Strategy\IncrementalVersionStrategy;
 use JulienDufresne\VersionHandler\Strategy\VersionStrategyInterface;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Yaml;
 
 final class Processor
@@ -40,7 +37,16 @@ final class Processor
         $currentVersion = $this->findVersion($dump, $configuration->parameterKey);
         $newVersion     = '';
         $strategyUsed   = null;
+        $this->io->write(
+            sprintf(
+                '<info>%s version of parameter %s in file %s</info>',
+                '' === $currentVersion ? 'Generating' : 'Updating',
+                $configuration->parameterKey,
+                $configuration->file
+            )
+        );
         foreach ($configuration->strategies as $strategy) {
+            $this->io->write(sprintf('Trying stratey <info>%s</info>', $strategy), true, IOInterface::DEBUG);
             /**
              * @var VersionStrategyInterface $class
              */
@@ -62,13 +68,19 @@ final class Processor
             return;
         }
 
-        $this->io->write(
-            [
-                sprintf('Found a new version using strategy <info>%s</info>', $strategyUsed),
-                sprintf('* Previous: %s', '' === $currentVersion ? '-' : $currentVersion),
-                sprintf('* New: %s', $newVersion),
-            ]
-        );
+        if ($this->io->isDebug()) {
+            $this->io->write(
+                [
+                    sprintf('Found a new version using strategy <info>%s</info>', $strategyUsed),
+                    sprintf('* Previous: <info>%s</info>', '' === $currentVersion ? '-' : $currentVersion),
+                    sprintf('* New: <info>%s</info>', $newVersion),
+                ],
+                true,
+                IOInterface::DEBUG
+            );
+        } else {
+            $this->io->write(sprintf('New version: <info>%s</info>', $newVersion));
+        }
 
         $dump = $this->updateVersion($dump, $configuration->parameterKey, $newVersion);
         $this->dumpFile($configuration->file, $dump);
@@ -84,10 +96,8 @@ final class Processor
      */
     private function parseFile(string $filePath)
     {
-        $yaml = new Parser();
-
         try {
-            return $yaml->parse(file_get_contents($filePath));
+            return Yaml::parse(file_get_contents($filePath));
         } catch (ParseException $e) {
             throw new FileException(
                 sprintf(
@@ -117,7 +127,7 @@ final class Processor
     private function findVersion(array $dump, string $parameterKey) : string
     {
         if (array_key_exists($parameterKey, $dump)) {
-            return $dump[$parameterKey];
+            return (string)$dump[$parameterKey];
         }
 
         if (false === strpos($parameterKey, '.')) {

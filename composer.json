@@ -2,6 +2,7 @@
     "name": "juliendufresne/composer-version-handler",
     "description": "Composer script to automates the process of updating an application version number",
     "require": {
+        "php": ">=7.0",
         "symfony/yaml": "~2.3|~3.0",
         "symfony/process": "~2.3|~3.0"
     },

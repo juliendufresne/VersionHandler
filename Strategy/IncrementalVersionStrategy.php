@@ -35,12 +35,12 @@ final class IncrementalVersionStrategy implements VersionStrategyInterface
             return '1';
         }
 
-        if (!preg_match('#^(.*)(\d+)$#', $currentVersion, $matches)) {
+        if (!preg_match('#^(.*\D?)(\d+)$#U', $currentVersion, $matches)) {
             $this->io->write('The current version ("%s") does not end with an integer value.');
 
             return '';
         }
-
+        
         $versionNumber = (int)$matches[2];
 
         return sprintf('%s%d', $matches[1], ++$versionNumber);
