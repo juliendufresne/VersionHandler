@@ -1,0 +1,23 @@
+{
+    "name": "juliendufresne/composer-version-handler",
+    "description": "Composer script to automates the process of updating an application version number",
+    "require": {
+        "symfony/yaml": "~2.3|~3.0",
+        "symfony/process": "~2.3|~3.0"
+    },
+    "require-dev": {
+        "composer/composer": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "JulienDufresne\\VersionHandler\\": ""
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Julien Dufresne",
+            "email": "github@dfrsn.me"
+        }
+    ]
+}
