@@ -45,7 +45,7 @@ final class GitVersionStrategy implements VersionStrategyInterface
             return '';
         }
 
-        return $this->getCurrentTag() ?? false;
+        return $this->getCurrentTag() ?? '';
     }
 
     /**
